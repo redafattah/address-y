@@ -1,14 +1,13 @@
 "use client";
 
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabase } from '@/components/SupabaseProvider';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const Header = () => {
-  const session = useSession();
-  const supabase = useSupabaseClient();
+  const { supabase, session } = useSupabase();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
