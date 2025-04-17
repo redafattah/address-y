@@ -4,35 +4,60 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Metadata } from 'next';
 
+// Enable dynamic routes
 export const dynamicParams = true;
 
-export async function generateStaticParams() {
+// ✅ Generate static params for build-time pre-rendering
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
   return allArticles.map((article) => ({
     id: article.id,
   }));
 }
 
-type ArticlePageProps = {
+// ✅ Metadata generation (SEO) based on dynamic route
+export async function generateMetadata({
+  params,
+}: {
   params: { id: string };
-};
-
-export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+}): Promise<Metadata> {
   const article = allArticles.find((a) => a.id === params.id);
-  if (!article) return { title: 'Article non trouvé' };
+  if (!article) {
+    return {
+      title: 'Article non trouvé',
+    };
+  }
 
   return {
     title: article.title,
     description: article.summary,
+    openGraph: {
+      title: article.title,
+      description: article.summary,
+      images: [
+        {
+          url: article.image_url,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+    },
   };
 }
 
-export default async function ArticlePage({ params }: ArticlePageProps) {
+// ✅ Main page component with correct typing
+export default async function ArticlePage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const article = allArticles.find((a) => a.id === params.id);
 
   if (!article) return notFound();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* 🔥 Article Header with Background Image */}
       <div className="relative w-screen h-[600px] overflow-hidden">
         <img
           src={article.image_url}
@@ -43,19 +68,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <div className="text-white max-w-5xl mx-auto w-full">
             <h1 className="text-4xl md:text-5xl font-bold">{article.title}</h1>
             <p className="text-sm text-white/80 mt-2">
-              Publié le {format(new Date(article.published_at), 'dd MMMM yyyy', { locale: fr })}
+              Publié le{' '}
+              {format(new Date(article.published_at), 'dd MMMM yyyy', {
+                locale: fr,
+              })}
             </p>
           </div>
         </div>
       </div>
 
+      {/* 🔥 Article Content */}
       <div className="max-w-5xl mx-auto px-4 py-12">
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <p className="text-lg">{article.summary}</p>
           <hr className="my-6" />
-          <p>Lorem ipsum dolor sit amet...</p>
-          <p>Vivamus et dapibus lacus...</p>
-          <p>Suspendisse potenti...</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          <p>Vivamus et dapibus lacus. Donec a lectus eu lacus porta viverra.</p>
+          <p>Suspendisse potenti. In feugiat, elit nec gravida euismod...</p>
         </article>
       </div>
     </div>
