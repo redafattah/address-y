@@ -3,7 +3,6 @@ import { allArticles } from '../../data/articles';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-// ✅ Required for dynamic routes
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -12,7 +11,11 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function ArticlePage({ params }: { params: { id: string } }) {
+type ArticlePageProps = {
+  params: { id: string };
+};
+
+export default function ArticlePage({ params }: ArticlePageProps) {
   const article = allArticles.find((a) => a.id === params.id);
 
   if (!article) return notFound();
