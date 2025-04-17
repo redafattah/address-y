@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,7 +27,7 @@ import { Listing } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { DayPicker } from "react-day-picker";
 
-const HotelListingsPage = () => {
+function ListingsWithFilters() {
   const searchParams = useSearchParams();
   const initialCity = searchParams.get("city") || "";
   const initialGuests = searchParams.get("guests");
@@ -234,11 +234,20 @@ const HotelListingsPage = () => {
         )}
 
         {!loading && filteredListings.length === 0 && (
-          <p className="text-center text-gray-500 mt-10 col-span-full">No rooms match your filters.</p>
+          <p className="text-center text-gray-500 mt-10 col-span-full">
+            No rooms match your filters.
+          </p>
         )}
       </div>
     </div>
   );
-};
+}
 
-export default HotelListingsPage;
+// ✅ Wrap the listings page in a Suspense boundary
+export default function HotelListingsPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center">Chargement des hôtels...</div>}>
+      <ListingsWithFilters />
+    </Suspense>
+  );
+}
