@@ -1,3 +1,5 @@
+// app/articles/[id]/page.tsx
+
 import { notFound } from 'next/navigation';
 import { allArticles } from '../../data/articles';
 import { format } from 'date-fns';
@@ -6,12 +8,14 @@ import type { Metadata } from 'next';
 
 export const dynamicParams = true;
 
-export async function generateStaticParams(): Promise<Array<{ id: string }>> {
+// ✅ Used strict and clean return type
+export async function generateStaticParams() {
   return allArticles.map((article) => ({
     id: article.id,
   }));
 }
 
+// ✅ Metadata with inline typing (avoids constraint issues on Vercel)
 export async function generateMetadata({
   params,
 }: {
@@ -19,9 +23,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const article = allArticles.find((a) => a.id === params.id);
   if (!article) {
-    return {
-      title: 'Article non trouvé',
-    };
+    return { title: 'Article non trouvé' };
   }
 
   return {
@@ -42,16 +44,19 @@ export async function generateMetadata({
   };
 }
 
+// ✅ Page component with compatible param typing
 export default async function ArticlePage({
   params,
 }: {
   params: { id: string };
 }) {
   const article = allArticles.find((a) => a.id === params.id);
+
   if (!article) return notFound();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* 🔥 Article Header with Background Image */}
       <div className="relative w-screen h-[600px] overflow-hidden">
         <img
           src={article.image_url}
@@ -71,6 +76,7 @@ export default async function ArticlePage({
         </div>
       </div>
 
+      {/* 🔥 Article Content */}
       <div className="max-w-5xl mx-auto px-4 py-12">
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <p className="text-lg">{article.summary}</p>
