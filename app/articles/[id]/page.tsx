@@ -3,10 +3,14 @@ import { allArticles } from '../../data/articles';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-interface ArticlePageProps {
-  params: { id: string };
+// ✅ Required by Next.js for dynamic routes to pre-render pages
+export async function generateStaticParams() {
+  return allArticles.map((article) => ({
+    id: article.id,
+  }));
 }
 
+// ✅ Main article page component
 export default function ArticlePage({ params }: { params: { id: string } }) {
   const article = allArticles.find((a) => a.id === params.id);
 
@@ -14,6 +18,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Hero Image */}
       <div className="relative w-screen h-[600px] overflow-hidden">
         <img
           src={article.image_url}
@@ -30,6 +35,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
+      {/* Article Content */}
       <div className="max-w-5xl mx-auto px-4 py-12">
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <p className="text-lg">{article.summary}</p>
