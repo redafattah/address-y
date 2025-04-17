@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { allArticles } from '../../data/articles';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import type { Metadata } from 'next';
 
 export const dynamicParams = true;
 
@@ -15,7 +16,17 @@ type ArticlePageProps = {
   params: { id: string };
 };
 
-export default function ArticlePage({ params }: ArticlePageProps) {
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const article = allArticles.find((a) => a.id === params.id);
+  if (!article) return { title: 'Article non trouvé' };
+
+  return {
+    title: article.title,
+    description: article.summary,
+  };
+}
+
+export default async function ArticlePage({ params }: ArticlePageProps) {
   const article = allArticles.find((a) => a.id === params.id);
 
   if (!article) return notFound();
