@@ -2,11 +2,11 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useRef } from "react";
-import { Bed, ShowerHead, User, ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
-import { DateRange, DayPicker } from "react-day-picker";
+import { DateRange } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,13 +24,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { getListings } from "@/lib/supabase/getListings";
 import { Listing } from "@/types";
+import { useSearchParams } from "next/navigation";
+import { DayPicker } from "react-day-picker";
 
 const HotelListingsPage = () => {
+  const searchParams = useSearchParams();
+  const initialCity = searchParams.get("city") || "";
+  const initialGuests = searchParams.get("guests");
+  const initialFrom = searchParams.get("from");
+  const initialTo = searchParams.get("to");
+
   const [listings, setListings] = useState<Listing[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string>("");
-  const [guestFilter, setGuestFilter] = useState<number | null>(null);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [applyFilters, setApplyFilters] = useState(false);
+  const [selectedCity, setSelectedCity] = useState(initialCity);
+  const [guestFilter, setGuestFilter] = useState<number | null>(
+    initialGuests ? parseInt(initialGuests) : null
+  );
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    if (initialFrom && initialTo) {
+      return {
+        from: new Date(initialFrom),
+        to: new Date(initialTo),
+      };
+    }
+    return undefined;
+  });
   const [loading, setLoading] = useState(true);
   const cardRefs = useRef<(HTMLDivElement | HTMLAnchorElement | null)[]>([]);
 
@@ -53,7 +70,6 @@ const HotelListingsPage = () => {
     setSelectedCity("");
     setGuestFilter(null);
     setDateRange(undefined);
-    setApplyFilters(false);
   };
 
   useEffect(() => {
@@ -62,13 +78,10 @@ const HotelListingsPage = () => {
       setListings(data);
       setLoading(false);
     };
-
     fetchData();
   }, []);
 
   const filteredListings = listings.filter((room) => {
-    if (!applyFilters) return true;
-
     const matchesCity = selectedCity
       ? room.address.toLowerCase().includes(selectedCity.toLowerCase())
       : true;
@@ -102,7 +115,7 @@ const HotelListingsPage = () => {
         {/* City Selector */}
         <div className="w-full md:w-[200px]">
           <label className="block text-sm font-medium text-gray-700 mb-1">Où allez vous?</label>
-          <Select onValueChange={(value) => setSelectedCity(value)} value={selectedCity}>
+          <Select onValueChange={setSelectedCity} value={selectedCity}>
             <SelectTrigger className="w-full h-11 px-4">
               <SelectValue placeholder="Select your stay" />
             </SelectTrigger>
@@ -119,7 +132,10 @@ const HotelListingsPage = () => {
         {/* Guests Selector */}
         <div className="w-full md:w-[150px]">
           <label className="block text-sm font-medium text-gray-700 mb-1">Guests</label>
-          <Select onValueChange={(value) => setGuestFilter(Number(value))} value={guestFilter?.toString() ?? ""}>
+          <Select
+            onValueChange={(value) => setGuestFilter(Number(value))}
+            value={guestFilter?.toString() ?? ""}
+          >
             <SelectTrigger className="w-full h-11 px-4">
               <SelectValue placeholder="Guests" />
             </SelectTrigger>
@@ -164,11 +180,8 @@ const HotelListingsPage = () => {
           </Popover>
         </div>
 
-        {/* Buttons */}
+        {/* Reset */}
         <div className="w-full flex gap-3 md:w-auto">
-          <Button onClick={() => setApplyFilters(true)} className="w-full md:w-auto h-11">
-            Search
-          </Button>
           <Button onClick={resetFilters} variant="outline" className="w-full md:w-auto h-11">
             Reset
           </Button>

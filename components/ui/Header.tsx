@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useSupabase } from '@/components/SupabaseProvider';
 import Link from "next/link";
@@ -22,6 +22,7 @@ const Header = () => {
         <nav className="space-x-6 hidden md:flex">
           <Link href="/" className="text-gray-700 hover:text-yellow-500">Accueil</Link>
           <Link href="/hotels" className="text-gray-700 hover:text-yellow-500">Hebergements</Link>
+          <Link href="/articles" className="text-gray-700 hover:text-yellow-500">Articles</Link>
           <Link href="/about" className="text-gray-700 hover:text-yellow-500">À propos</Link>
           <Link href="/contact" className="text-gray-700 hover:text-yellow-500">Contact</Link>
         </nav>
@@ -55,6 +56,7 @@ const Header = () => {
           <nav className="flex flex-col gap-4 mb-4">
             <Link href="/" onClick={() => setIsOpen(false)}>Accueil</Link>
             <Link href="/hotels" onClick={() => setIsOpen(false)}>Hebergements</Link>
+            <Link href="/articles" onClick={() => setIsOpen(false)}>Articles</Link>
             <Link href="/about" onClick={() => setIsOpen(false)}>À propos</Link>
             <Link href="/contact" onClick={() => setIsOpen(false)}>Contact</Link>
           </nav>
