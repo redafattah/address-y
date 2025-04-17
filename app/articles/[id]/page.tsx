@@ -1,3 +1,5 @@
+// app/articles/[id]/page.tsx
+
 import { notFound } from 'next/navigation';
 import { allArticles } from '../../data/articles';
 import { format } from 'date-fns';
@@ -6,18 +8,15 @@ import type { Metadata } from 'next';
 
 export const dynamicParams = true;
 
-// ✅ Static params
 export async function generateStaticParams() {
   return allArticles.map((article) => ({
     id: article.id,
   }));
 }
 
-// ✅ Metadata (strictly match the App Router)
-export async function generateMetadata(
-  props: { params: { id: string } }
-): Promise<Metadata> {
-  const article = allArticles.find((a) => a.id === props.params.id);
+export async function generateMetadata(props: any): Promise<Metadata> {
+  const id = props?.params?.id;
+  const article = allArticles.find((a) => a.id === id);
   if (!article) {
     return {
       title: 'Article non trouvé',
@@ -30,9 +29,9 @@ export async function generateMetadata(
   };
 }
 
-// ✅ Page component — don’t use any custom type, just destructure `params`
-export default async function Page({ params }: { params: { id: string } }) {
-  const article = allArticles.find((a) => a.id === params.id);
+export default async function Page(props: any) {
+  const id = props?.params?.id;
+  const article = allArticles.find((a) => a.id === id);
 
   if (!article) return notFound();
 
